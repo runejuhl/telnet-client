@@ -102,7 +102,7 @@
         (str result (subs s last-offset))))))
 
 (defn write
-  "Write string data to the host."
+  "Send string to the host."
   [#^Telnet host #^String data]
   (let [#^TelnetClient tc (.telnet host)
         #^OutputStream os (-> tc .getOutputStream)]
@@ -110,12 +110,12 @@
     (.flush os)))
 
 (defn read-data
-  "Read input buf."
+  "Read n characters from input buffer. Read all characters if no n paramater."
   ([#^Telnet host n] (subs @(.buf host) 0 n))
   ([#^Telnet host] (read-data host 2048)))
 
 (defn wait-for
-  "Wait a regex is found."
+  "Waitting until a regex is found in the input buffer."
   ([#^Telnet host re timeout]
    (let [input (wait 10 timeout
                              #(let [m (re-matcher re @(.buf host))]
@@ -129,10 +129,11 @@
 
 
 (defn exec-cmd
-  "Execute a command, and return the result"
+  "Execute a command, and return the result as string.
+  Clear buffer before executing the command."
   [#^Telnet host cmd]
   (swap! (.buf host) (constantly ""))
-  (write host cmd)
+  (write host (str cmd "\n"))
   (let [buf (.buf host) prompt (cmd-prompt)]
     (let [input (loop [result ""]
                   (let [d @buf
@@ -151,7 +152,7 @@
       (join "\n" (map exec-ansi-shift-right-cmds (cs/split-lines input))))))
 
 (defn login
-  "Login to the host specified by host."
+  "Login to the host specified by host with username and password."
   ([host user password timeout]
    (let [#^Telnet telnet (get-telnet host)
          ts 200
@@ -167,7 +168,7 @@
    (login host user password 2000)))
 
 (defn get-host-name
-  "Get hostname."
+  "Get the name of the host."
   [host]
   (let [result (exec-cmd host "\n")]
     (apply str (rest (re-find (cmd-prompt) result)))))
