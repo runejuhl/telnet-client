@@ -5,6 +5,7 @@
             :url "https://www.mit-license.org/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [commons-net/commons-net "3.5"]]
-  :user {:plugins [[cider/cider-nrepl "0.22.4"]]}
-  :repl-options {:init-ns telnet-client.core}
+  :profiles {
+             :dev {:plugins [[cider/cider-nrepl "0.22.4"]]
+                   :repl-options {:init-ns telnet-client.core}}}
   :main telnet-client.core)
