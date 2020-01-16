@@ -1,4 +1,4 @@
-(defproject telnet_client "0.1.1"
+(defproject telnet_client "0.1.2"
   :description "Clojure wrap for TelnetClient"
   :url "https://githup.com/cdzwm/telnet-client"
   :license {:name "MIT License"
