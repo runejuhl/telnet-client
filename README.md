@@ -8,7 +8,7 @@ For example routers & switchs.
 	(println (exec-cmd "display version")))
 
 ## Authors
-	cdzwm
+cdzwm
 
 ## License
 MIT License
