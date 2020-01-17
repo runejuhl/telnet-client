@@ -1,6 +1,6 @@
 (defproject telnet_client "0.1.2"
   :description "Clojure wrap for TelnetClient"
-  :url "https://githup.com/cdzwm/telnet-client"
+  :url "https://github.com/cdzwm/telnet-client"
   :license {:name "MIT License"
             :url "https://www.mit-license.org/"}
   :dependencies [[org.clojure/clojure "1.10.0"]
