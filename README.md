@@ -7,7 +7,7 @@ For example routers & switchs.
 (with-open [h (login "192.168.0.1" "username" "password")]
 	(println (exec-cmd "display version")))
 
-Authors
+## Authors
 	cdzwm
 
 ## License
