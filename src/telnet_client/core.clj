@@ -12,7 +12,7 @@
   java.io.Closeable
   (close [this] (disconnect this)))
 
-(defn wait
+(defn- wait
   "polls to see if f returns true with interval (milliseconds)
   and timeout (milliseconds). can pass additional args to f."
   [interval timeout f & args]
@@ -75,7 +75,7 @@
     (swap! (.alive telnet-client) (constantly false))
     @(.read-future telnet-client)))
 
-(defn cmd-prompt
+(defn- cmd-prompt
   "command prompt regex"
   []
   #"(?m)^(?:<([^<>]+)>|\[([^\[\]]+)\])$")
@@ -88,7 +88,7 @@
   ([#^Telnet host]
    (wait-cmd-prompt host 2000)))
 
-(defn exec-ansi-shift-right-cmds
+(defn- exec-ansi-shift-right-cmds
   "Return a string with ANSI characters removed."
   [s]
   (let [m (re-matcher  #"\u001B\[(\d+)(D)" s)]
