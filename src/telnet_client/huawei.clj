@@ -37,7 +37,6 @@
           (recur (subs line 0 len) (long end)))
         (str result (subs s last-offset))))))
 
-
 (defn wait-for
   "Waitting until a regex is found in the input buffer."
   ([#^Telnet host re timeout]
@@ -50,7 +49,6 @@
      (if input (join "\n" (map exec-ansi-shift-right-cmds (split-lines input))))))
   ([#^Telnet host re]
    (wait-for host re 2000)))
-
 
 (defn exec-cmd
   "Execute a command, and return the result as string.
