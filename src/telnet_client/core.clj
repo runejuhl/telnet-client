@@ -86,5 +86,6 @@
 
 (defn read
   "Read n characters from input buffer. Read all characters if no n paramater."
-  ([#^Telnet host n] (subs @(.buf host) 0 n))
+  ([#^Telnet host n] (let [s @(.buf host) len (count s)]
+                       (subs s 0 (if (> n len) len n))))
   ([#^Telnet host] (read host 2048)))
