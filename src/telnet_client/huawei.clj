@@ -6,16 +6,21 @@
     [clojure.string :as cs :refer [join split-lines]])
   (:gen-class))
 
-(defn- cmd-prompt
+(defn- tail-cmd-prompt
   "command prompt regex"
   []
   #"(?m)^(?:<([^<>]+)>|\[([^\[\]]+)\])$")
+
+(defn- cmd-prompt
+  "command prompt regex"
+  []
+  #"(?m)^(?:<([^<>]+)>|\[([^\[\]]+)\])")
 
 (defn wait-cmd-prompt
   "Wait until a command line prompt is found."
   ([#^Telnet host timeout]
    (let [buf @(.buf host)]
-     (wait 10 timeout re-find (cmd-prompt) buf)))
+     (wait 10 timeout re-find (tail-cmd-prompt) buf)))
   ([#^Telnet host]
    (wait-cmd-prompt host 2000)))
 
@@ -50,25 +55,27 @@
 (defn exec-cmd
   "Execute a command, and return the result as string.
   Clear buffer before executing the command."
-  [#^Telnet host cmd]
-  (swap! (.buf host) (constantly ""))
-  (write host (str cmd "\n"))
-  (let [buf (.buf host) prompt (cmd-prompt)]
-    (let [input (loop [result ""]
-                  (let [d @buf
-                        m-more (re-matcher #"(?m)^.*?---- More ----.*?$" d )
-                        m-prompt (re-matcher prompt d)]
-                    (if (re-find m-prompt)
-                      (do (swap! buf subs (.end m-prompt))
-                          (str result (subs d 0 (.end m-prompt))))
-                      (do (if (re-find m-more)
-                            (do (swap! buf subs (.end m-more))
-                                (write host " ")
-                                (Thread/sleep 100)
-                                (recur (str result (subs d 0 (.end m-more)))))
-                            (do (Thread/sleep 100)
-                                (recur result)))))))]
-      (join "\n" (map exec-ansi-shift-right-cmds (cs/split-lines input))))))
+  ([#^Telnet host cmd cr]
+   (swap! (.buf host) (constantly ""))
+   (write host (str cmd (if cr "\n" "")))
+   (let [buf (.buf host) prompt (cmd-prompt)]
+     (let [input (loop [result ""]
+                   (let [d @buf
+                         m-more (re-matcher #"(?m)^.*?---- More ----.*?$" d )
+                         m-prompt (re-matcher prompt d)]
+                     (if (re-find m-prompt)
+                       (do (swap! buf subs (.end m-prompt))
+                           (str result (subs d 0 (.end m-prompt))))
+                       (do (if (re-find m-more)
+                             (do (swap! buf subs (.end m-more))
+                                 (write host " ")
+                                 (Thread/sleep 100)
+                                 (recur (str result (subs d 0 (.end m-more)))))
+                             (do (Thread/sleep 100)
+                                 (recur result)))))))]
+       (join "\n" (map exec-ansi-shift-right-cmds (cs/split-lines input))))))
+  ([#^Telnet host cmd]
+   (exec-cmd host cmd true)))
 
 (defn login
   "Login to the host specified by host with username and password."
@@ -90,4 +97,9 @@
   "Get the name of the host."
   [host]
   (let [result (exec-cmd host "\n")]
-    (apply str (rest (re-find (cmd-prompt) result)))))
+    (apply str (rest (re-find (tail-cmd-prompt) result)))))
+
+(defn has-cmd
+  [host cmd]
+  (let [ret (exec-cmd host "super ?" false)]
+    (if-not (re-find #"(?m)^\s*% Unrecognized command" ret) true)))
