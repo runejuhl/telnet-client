@@ -114,3 +114,17 @@
        (cs/join "\n")
        (#(cs/split % #"\n#\n"))
        (filter #(re-find #"(?i)^interface " %))))
+
+(defn ip-address [interface]
+  (->> (cs/split-lines interface)
+       (filter #(re-find #"(?i)^\s*ip address \d" %))))
+
+(defn parse-netseg
+  "Parse netsegs."
+  [h]
+  (let [interfaces (parse-interfaces h)
+        ips (->> interfaces
+                 (map ip-address)
+                 (filter seq)
+                 (apply concat))]
+    (mapv #(->> (cs/split % #"\s+") (drop 3) (take 2)) ips)))
