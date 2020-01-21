@@ -103,3 +103,14 @@
     (write host "Clear current command.\n")
     (wait-for host (tail-cmd-prompt))
     (if-not (re-find #"(?m)^\s*% Unrecognized command" ret) true)))
+
+(defn parse-interfaces
+  "Parse all interfaces from the device configuration file."
+  [h]
+  (->> (exec-cmd h "display current")
+       cs/split-lines
+       butlast
+       next
+       (cs/join "\n")
+       (#(cs/split % #"\n#\n"))
+       (filter #(re-find #"(?i)^interface " %))))
