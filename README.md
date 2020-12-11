@@ -5,7 +5,7 @@ For example routers & switchs.
 ## Usage
 	(require '[telnet-client.huawei :refer [login exec-cmd]])
 	(with-open [h (login "192.168.0.1" "username" "password")]
-		(println (exec-cmd "display version")))
+		(println (exec-cmd h "display version")))
 
 ## Authors
 cdzwm
