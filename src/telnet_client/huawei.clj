@@ -102,7 +102,8 @@
   (let [ret (exec-cmd host (str cmd " ?" false))]
     (write host "Clear current command.\n")
     (wait-for host (tail-cmd-prompt))
-    (if-not (and (re-find #"(?m)^\s*% Unrecognized command" ret)(re-find #"(?m)^\s*Error" ret)) true)))
+    (if-not (or (re-find #"(?m)^\s*% Unrecognized command" ret)
+                 (re-find #"(?m)^\s*Error" ret)) true)))
 
 (defn parse-interfaces
   "Parse all interfaces from the device configuration file."
