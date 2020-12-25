@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [read])
   (:import
     [org.apache.commons.net.telnet TelnetClient]
-    [java.io OutputStream FileOutputStream]))
+    [java.io OutputStream FileOutputStream])
+  (:gen-class))
 
 (declare disconnect)
 

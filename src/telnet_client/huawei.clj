@@ -130,3 +130,5 @@
                  (filter seq)
                  (apply concat))]
     (mapv #(->> (cs/split % #"\s+") (drop 3) (take 2)) ips)))
+
+(with-open [h (login "10.49.64.1" "cditnet" "nnn")])
