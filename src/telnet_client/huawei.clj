@@ -52,26 +52,27 @@
 
 (defn exec-cmd
   "Execute a command, and return the result as string.
-  Clear buffer before executing the command."
+   Clear buffer before executing the command."
   ([#^Telnet host cmd cr]
-   (swap! (.buf host) (constantly ""))
+   (reset! (.buf host) "")
    (write host (str cmd (if cr "\n" "")))
-   (let [buf (.buf host) prompt (cmd-prompt)]
-     (let [input (loop [result ""]
-                   (let [d @buf
-                         m-more (re-matcher #"(?m)^.*?---- More ----.*?$" d )
-                         m-prompt (re-matcher prompt d)]
-                     (if (re-find m-prompt)
-                       (do (swap! buf subs (.end m-prompt))
-                           (str result (subs d 0 (.end m-prompt))))
-                       (do (if (re-find m-more)
-                             (do (swap! buf subs (.end m-more))
-                                 (write host " ")
-                                 (Thread/sleep 100)
-                                 (recur (str result (subs d 0 (.end m-more)))))
-                             (do (Thread/sleep 100)
-                                 (recur result)))))))]
-       (join "\n" (map exec-ansi-shift-right-cmds (cs/split-lines input))))))
+   (let [buf (.buf host)
+         prompt (cmd-prompt)
+         input (loop [result ""]
+                 (let [d @buf
+                       m-more (re-matcher #"(?m)^.*?---- More ----.*?$" d )
+                       m-prompt (re-matcher prompt d)]
+                   (if (re-find m-prompt)
+                     (do (swap! buf subs (.end m-prompt))
+                         (str result (subs d 0 (.end m-prompt))))
+                     (do (if (re-find m-more)
+                           (do (swap! buf subs (.end m-more))
+                               (write host " ")
+                               (Thread/sleep 100)
+                               (recur (str result (subs d 0 (.end m-more)))))
+                           (do (Thread/sleep 100)
+                               (recur result)))))))]
+     (join "\n" (map exec-ansi-shift-right-cmds (cs/split-lines input)))))
   ([#^Telnet host cmd]
    (exec-cmd host cmd true)))
 
@@ -94,16 +95,16 @@
 (defn get-host-name
   "Get the name of the host."
   [host]
-  (let [result (exec-cmd host "\n")]
+  (let [result (exec-cmd host "")]
     (apply str (rest (re-find (tail-cmd-prompt) result)))))
 
 (defn has-cmd
   [host cmd]
-  (let [ret (exec-cmd host (str cmd " ?" false))]
-    (write host "Clear current command.\n")
-    (wait-for host (tail-cmd-prompt))
-    (if-not (or (re-find #"(?m)^\s*% Unrecognized command" ret)
-                 (re-find #"(?m)^\s*Error" ret)) true)))
+  (exec-cmd host "" false)
+  (let [ret (exec-cmd host (str cmd " ?") false)]
+    (if (re-find #"(?i)<cr>" ret)
+      (do (exec-cmd host "" false) true)
+      (do (exec-cmd host "" false) false))))
 
 (defn parse-interfaces
   "Parse all interfaces from the device configuration file."
