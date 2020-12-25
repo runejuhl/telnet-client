@@ -1,6 +1,6 @@
 (ns telnet-client.huawei
   (:refer-clojure :exclude [read])
-  (:import [telnet-client.core Telnet])
+  (:import [telnet_client.core Telnet])
   (:require
     [telnet-client.core :refer (read wait write get-telnet)]
     [clojure.string :as cs :refer [join split-lines]])
