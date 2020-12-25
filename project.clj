@@ -1,4 +1,4 @@
-(defproject telnet-client "0.1.11"
+(defproject telnet-client "0.1.12"
   :description "Clojure wrap for TelnetClient"
   :url "https://github.com/cdzwm/telnet-client"
   :license {:name "MIT License"
@@ -7,5 +7,4 @@
                  [commons-net/commons-net "3.6"]]
   :profiles {
              :dev {:plugins [[cider/cider-nrepl "0.22.4"]]
-                   :repl-options {:init-ns telnet-client.core}}}
-  :main telnet-client.core)
+                   :repl-options {:init-ns telnet-client.core}}})
