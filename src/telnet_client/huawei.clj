@@ -1,10 +1,10 @@
 (ns telnet-client.huawei
+  (:gen-class)
   (:refer-clojure :exclude [read])
   (:import [telnet_client.core Telnet])
   (:require
     [telnet-client.core :refer (read wait write get-telnet)]
-    [clojure.string :as cs :refer [join split-lines]])
-  (:gen-class))
+    [clojure.string :as cs :refer [join split-lines]]))
 
 (defn- tail-cmd-prompt
   "command prompt regex"

@@ -1,9 +1,9 @@
 (ns telnet-client.core
+  (:gen-class)
   (:refer-clojure :exclude [read])
   (:import
     [org.apache.commons.net.telnet TelnetClient]
-    [java.io OutputStream FileOutputStream])
-  (:gen-class))
+    [java.io OutputStream FileOutputStream]))
 
 (declare disconnect)
 
