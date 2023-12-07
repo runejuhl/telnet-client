@@ -7,7 +7,8 @@
 
 (declare disconnect)
 
-(deftype Telnet [telnet read-future buf alive]
+(deftype Telnet [telnet read-future buf alive
+                 hostname prompt isPrivileged]
   java.io.Closeable
   (close [this] (disconnect this)))
 
@@ -32,13 +33,16 @@
   :output-log (default nil)
   Add method close so that the object can be used with with-open."
   ([#^String server-ip & {:keys [port connect-timeout default-timeout output-log]
-                         :or {port 23
-                              connect-timeout 5000
-                              default-timeout 5000
-                              output-log nil}}]
+                          :or   {port            23
+                                 connect-timeout 5000
+                                 default-timeout 5000
+                                 output-log      nil}}]
    (let [#^TelnetClient tc (TelnetClient.)
-         buf (atom "")
-         alive (atom true)]
+         buf               (atom "")
+         alive             (atom true)
+         hostname          (atom nil)
+         prompt            (atom nil)
+         isPrivileged      (atom nil)]
 
      (when output-log
        (.registerSpyStream tc (FileOutputStream. "output.log")))
@@ -52,7 +56,7 @@
 
      (Telnet. tc
               (future (try (let [tbuf (byte-array 2048)
-                                 is (.getInputStream tc)]
+                                 is   (.getInputStream tc)]
                              (while alive
                                (let [c (.read is tbuf)]
                                  (when (> c 0)
@@ -60,7 +64,10 @@
                                  (Thread/sleep 10))))
                            (catch Exception e e)))
               buf
-              alive)))
+              alive
+              hostname
+              prompt
+              isPrivileged)))
   ([#^String server-ip]
    (get-telnet server-ip :port 23)))
 
